@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>時鐘 + 像素人動畫</title>
+  <title>時鐘 + 像素人 + 倉鼠</title>
   <style>
     body {
       margin: 0;
@@ -75,14 +75,16 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // 像素人動畫
+    // 像素人物
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
     const pixelSize = 4;
-    let x = 0;
+    let x = -20;
     let frame = 0;
+    let direction = 1;
+    let waiting = false;
 
-    const frames = [
+    const walkerFrames = [
       [
         [0,1,0],
         [1,1,1],
@@ -99,13 +101,29 @@
       ]
     ];
 
-    function drawCharacter(xPos, frameIndex) {
-      ctx.fillStyle = "#0f0";
-      const character = frames[frameIndex];
-      character.forEach((row, y) => {
+    const hamsterFrames = [
+      [
+        [0,1,1,1,0],
+        [1,1,0,1,1],
+        [1,0,1,0,1],
+        [1,1,1,1,1],
+        [0,1,1,1,0]
+      ],
+      [
+        [0,1,1,1,0],
+        [1,0,1,0,1],
+        [1,1,0,1,1],
+        [1,1,1,1,1],
+        [0,1,1,1,0]
+      ]
+    ];
+
+    function drawPixelArt(xPos, yPos, art, color) {
+      ctx.fillStyle = color;
+      art.forEach((row, y) => {
         row.forEach((pixel, x) => {
           if (pixel) {
-            ctx.fillRect(xPos + x * pixelSize, y * pixelSize + 20, pixelSize, pixelSize);
+            ctx.fillRect(xPos + x * pixelSize, yPos + y * pixelSize, pixelSize, pixelSize);
           }
         });
       });
@@ -113,10 +131,40 @@
 
     function step() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      drawCharacter(x, frame);
-      x += 4;
-      if (x > canvas.width) x = -pixelSize * 3;
-      frame = (frame + 1) % frames.length;
+
+      if (direction === 1) {
+        drawPixelArt(x + 28, 24, walkerFrames[frame], "#0f0"); // 小人在前（往右）
+        drawPixelArt(x, 23, hamsterFrames[frame], "#ffcc00");   // 倉鼠在後
+      } else {
+        drawPixelArt(x, 24, walkerFrames[frame], "#0f0"); // 小人在後（往左）
+        drawPixelArt(x + 28, 23, hamsterFrames[frame], "#ffcc00"); // 倉鼠在前
+      }
+
+      if (waiting) return;
+
+      x += 4 * direction;
+
+      if (direction === 1 && x > canvas.width) {
+        waiting = true;
+        setTimeout(() => {
+          direction = -1;
+          frame = 0;
+          x = canvas.width;
+          waiting = false;
+        }, 1000);
+      }
+
+      if (direction === -1 && x < -pixelSize * 5) {
+        waiting = true;
+        setTimeout(() => {
+          direction = 1;
+          frame = 0;
+          x = -pixelSize * 5;
+          waiting = false;
+        }, 1000);
+      }
+
+      frame = (frame + 1) % walkerFrames.length;
     }
 
     setInterval(step, 1000);
