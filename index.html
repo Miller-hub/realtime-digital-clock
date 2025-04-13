@@ -3,15 +3,124 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>線上時間顯示器｜支援 12/24 小時切換</title>
-  <meta name="description" content="即時顯示台灣時間的線上時鐘，可自由切換 12/24 小時制，適合投影、展示或日常使用。">
-  <link rel="stylesheet" href="style-rwd.css">
+  <title>時鐘 + 像素人動畫</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      height: 100vh;
+      padding-top: 40px;
+    }
+
+    #clock {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+
+    #toggle {
+      padding: 10px 16px;
+      font-size: 1rem;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 40px;
+    }
+
+    canvas {
+      background: #111;
+      image-rendering: pixelated;
+      border: none;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1 id="clock">--:--:--</h1>
-    <button id="toggle">切換為 12 小時制</button>
-  </div>
-  <script src="script.js"></script>
+  <div id="clock">--:--:--</div>
+  <button id="toggle">切換為 12 小時制</button>
+
+  <canvas id="game" width="160" height="100"></canvas>
+
+  <script>
+    // 時鐘功能
+    const clock = document.getElementById("clock");
+    const toggle = document.getElementById("toggle");
+    let is12Hour = false;
+
+    function updateClock() {
+      const now = new Date();
+      const options = {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: is12Hour,
+        timeZone: 'Asia/Taipei'
+      };
+      const formatter = new Intl.DateTimeFormat('zh-TW', options);
+      clock.textContent = formatter.format(now);
+    }
+
+    toggle.addEventListener("click", () => {
+      is12Hour = !is12Hour;
+      toggle.textContent = is12Hour ? "切換為 24 小時制" : "切換為 12 小時制";
+      updateClock();
+    });
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // 像素人動畫
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+    const pixelSize = 4;
+    let x = 0;
+    let frame = 0;
+
+    const frames = [
+      [
+        [0,1,0],
+        [1,1,1],
+        [0,1,0],
+        [1,0,1],
+        [1,0,1]
+      ],
+      [
+        [0,1,0],
+        [1,1,1],
+        [0,1,0],
+        [1,1,0],
+        [0,1,1]
+      ]
+    ];
+
+    function drawCharacter(xPos, frameIndex) {
+      ctx.fillStyle = "#0f0";
+      const character = frames[frameIndex];
+      character.forEach((row, y) => {
+        row.forEach((pixel, x) => {
+          if (pixel) {
+            ctx.fillRect(xPos + x * pixelSize, y * pixelSize + 20, pixelSize, pixelSize);
+          }
+        });
+      });
+    }
+
+    function step() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawCharacter(x, frame);
+      x += 4;
+      if (x > canvas.width) x = -pixelSize * 3;
+      frame = (frame + 1) % frames.length;
+    }
+
+    setInterval(step, 1000);
+    step();
+  </script>
 </body>
 </html>
