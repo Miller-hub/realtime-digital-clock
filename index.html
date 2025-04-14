@@ -3,7 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>時鐘 + 像素人 + 倉鼠</title>
+  <title>線上時間顯示器｜可愛像素人</title>
+  <meta name="description" content="一款可愛又有趣的線上時間顯示器，有像素小人陪你度過每一秒，支援 12/24 小時制，適合手機與桌面裝置。">
+
+  <!-- Open Graph for FB/LINE -->
+  <meta property="og:title" content="線上時間顯示器">
+  <meta property="og:description" content="有趣又療癒的時間顯示工具，支援 PWA 加入主畫面，讓你不再錯過時間。">
+  <meta property="og:image" content="https://miller-hub.github.io/realtime-digital-clock/icon.png">
+  <meta property="og:url" content="https://miller-hub.github.io/realtime-digital-clock/">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="線上時間顯示器">
+  <meta name="twitter:description" content="像素人陪你每一秒">
+  <meta name="twitter:image" content="https://miller-hub.github.io/realtime-digital-clock/icon.png">
+
   <style>
     body {
       margin: 0;
@@ -44,16 +59,27 @@
       max-width: 320px;
       height: auto;
     }
+
+    .description {
+      margin-top: 30px;
+      max-width: 480px;
+      font-size: 1rem;
+      text-align: center;
+      color: #ccc;
+    }
   </style>
 </head>
 <body>
   <div id="clock">--:--:--</div>
   <button id="toggle">切換為 12 小時制</button>
-
   <canvas id="game" width="160" height="100"></canvas>
 
+  <p class="description">
+    這是一款免費的線上時間顯示器工具，除了顯示現在時間，還有可愛的像素小人在畫面中行走。
+   <br>可加入主畫面當成 App 使用。
+  </p>
+
   <script>
-    // 時鐘功能
     const clock = document.getElementById("clock");
     const toggle = document.getElementById("toggle");
     let is12Hour = false;
@@ -80,7 +106,6 @@
     setInterval(updateClock, 1000);
     updateClock();
 
-    // 像素人物
     const canvas = document.getElementById("game");
     const ctx = canvas.getContext("2d");
     const pixelSize = 4;
@@ -90,37 +115,13 @@
     let waiting = false;
 
     const walkerFrames = [
-      [
-        [0,1,0],
-        [1,1,1],
-        [0,1,0],
-        [1,0,1],
-        [1,0,1]
-      ],
-      [
-        [0,1,0],
-        [1,1,1],
-        [0,1,0],
-        [1,1,0],
-        [0,1,1]
-      ]
+      [[0,1,0],[1,1,1],[0,1,0],[1,0,1],[1,0,1]],
+      [[0,1,0],[1,1,1],[0,1,0],[1,1,0],[0,1,1]]
     ];
 
     const hamsterFrames = [
-      [
-        [0,1,1,1,0],
-        [1,1,0,1,1],
-        [1,0,1,0,1],
-        [1,1,1,1,1],
-        [0,1,1,1,0]
-      ],
-      [
-        [0,1,1,1,0],
-        [1,0,1,0,1],
-        [1,1,0,1,1],
-        [1,1,1,1,1],
-        [0,1,1,1,0]
-      ]
+      [[0,1,1,1,0],[1,1,0,1,1],[1,0,1,0,1],[1,1,1,1,1],[0,1,1,1,0]],
+      [[0,1,1,1,0],[1,0,1,0,1],[1,1,0,1,1],[1,1,1,1,1],[0,1,1,1,0]]
     ];
 
     function drawPixelArt(xPos, yPos, art, color) {
@@ -136,17 +137,15 @@
 
     function step() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       if (direction === 1) {
-        drawPixelArt(x + 28, 24, walkerFrames[frame], "#0f0"); // 小人在前（往右）
-        drawPixelArt(x, 23, hamsterFrames[frame], "#ffcc00");   // 倉鼠在後
+        drawPixelArt(x + 28, 24, walkerFrames[frame], "#0f0");
+        drawPixelArt(x, 23, hamsterFrames[frame], "#ffcc00");
       } else {
-        drawPixelArt(x, 24, walkerFrames[frame], "#0f0"); // 小人在後（往左）
-        drawPixelArt(x + 28, 23, hamsterFrames[frame], "#ffcc00"); // 倉鼠在前
+        drawPixelArt(x, 24, walkerFrames[frame], "#0f0");
+        drawPixelArt(x + 28, 23, hamsterFrames[frame], "#ffcc00");
       }
 
       if (waiting) return;
-
       x += 4 * direction;
 
       if (direction === 1 && x > canvas.width) {
